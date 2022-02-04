@@ -1,0 +1,27 @@
+.logindialog-button-section {
+    margin-top: 15px;
+    float: right;
+    clear: both;
+}
+
+.logindialog-button {
+    margin-right: 10px;
+}
+
+.logindialog-input-password-section {
+    margin-top: 20px;
+}
+
+.logindialog-label {
+    margin-right: 5px;
+}
+
+.logindialog-input-textbox {
+    float: right;
+    clear: both;
+}
+
+.logindialog-icon-head {
+    text-align: center;
+    margin-bottom: 25px;
+}
