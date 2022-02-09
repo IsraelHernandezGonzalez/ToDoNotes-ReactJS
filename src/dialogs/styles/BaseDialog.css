@@ -1,10 +1,16 @@
-.basedialog-container {
-    background-color: lightblue;
+.base-dialog-container {
+    background-color: rgb(78, 139, 231);
     border-radius: 5%;
     top: 50%;
     left: 50%;
     position: fixed;
     transform: translate(-50%, -50%);
     padding: 10px;    
-    box-shadow: 10px 10px #dfdede6c;
+    box-shadow: 10px 10px #f7f3f325;
+}
+
+.base-dialog-title {
+    font-size: calc(10px + 4vmin);
+    margin: 0px 0px 10px 0px;
+    font-weight: bold;
 }

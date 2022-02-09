@@ -1,18 +1,18 @@
-.App {
+.app {
   text-align: center;  
-  background-color: #282c34;
 }
 
-.App-header {  
+.app-header {  
   display: flex;
   flex-direction: column;
-  align-items: center;  
+  align-items:center;  
   font-size: calc(10px + 2vmin);
   color: white;
+  width: 100%;
 }
 
-.App-body {
-  min-height: 100vh;
+.app-body {
+  min-height: 50vh;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -21,10 +21,10 @@
   color: white;
 }
 
-.App-footer {
+.app-footer {
   border-top: solid 1px;  
   width: 100%;
-  position: absolute;
+  position: fixed;
   bottom: 0;
   left: 0;
   text-align: center;

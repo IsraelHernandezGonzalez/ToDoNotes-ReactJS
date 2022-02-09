@@ -2,9 +2,9 @@ import './styles/BaseDialog.css';
 
 function BaseDialog(props) {
     return (
-        <div className="basedialog-container">
+        <div className="base-dialog-container">
             <div>
-                <h2>{props.title}</h2>
+                <p className='base-dialog-title'>{props.title}</p>
             </div>
             <div>
                 {props.body}

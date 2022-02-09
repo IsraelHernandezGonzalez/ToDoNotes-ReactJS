@@ -1,7 +1,7 @@
 import './styles/App.css';
-import LoginDialog from './dialogs/LoginDialog';
 import UserSection from './UserSection';
 import React from 'react';
+import NewNoteDialog from './dialogs/NewNoteDialog';
 
 class App extends React.Component {
 
@@ -11,10 +11,13 @@ class App extends React.Component {
        user: { 
          name: '',
          isLogged: false
-      }
+      },
+      showNewNoteDialog: false
     };
 
     this.loginStateChangedHandler = this.loginStateChangedHandler.bind(this);    
+    this.addNoteClickHandler = this.addNoteClickHandler.bind(this);
+    this.newNoteDialogClosingEventHandler = this.newNoteDialogClosingEventHandler.bind(this);
   }
 
   loginStateChangedHandler(e) {
@@ -23,7 +26,7 @@ class App extends React.Component {
 
       this.setState({
         user: { 
-          name: 'Default',
+          name: e.login,
           isLogged: true
         }
       });
@@ -38,19 +41,41 @@ class App extends React.Component {
     }    
   }
 
+  addNoteClickHandler () {
+    this.setState({showNewNoteDialog: true});
+  }
+
+  newNoteDialogClosingEventHandler () {
+    this.setState({showNewNoteDialog: false});
+  }
+
+
   render() {
+    
+    let noteSection = null;
+        
+    if (this.state.user.isLogged) {
+      noteSection = (
+          <div className="app-body">
+            <button onClick={this.addNoteClickHandler}>
+              Add note
+            </button>
+            <NewNoteDialog show={this.state.showNewNoteDialog} onDialogClosingEvent={this.newNoteDialogClosingEventHandler} />
+          </div>  
+        );
+    }
+
     return (
-      <div className="App">
-        <header className="App-header">                  
-            <img src='logo128.png' alt='Alien - React first contact logo' />
-            <p>React first contact</p>
+      <div className="app">
+        <header className="app-header">               
+            <img src='logo64.png' alt='Alien - React first contact logo' />   
+            <p>React first contact</p>            
             <UserSection 
               user={this.state.user}
-              onLoginStateChanged={this.loginStateChangedHandler} />    
+              onLoginStateChanged={this.loginStateChangedHandler} />                        
         </header>
-        <div className="App-body">
-        </div>      
-        <footer className="App-footer">
+        {noteSection}    
+        <footer className="app-footer">
           <address>
             <p>Author: Israel Hernández González - <a href="mailto:israel.hernandez@gmail.com">israel.hernandez@gmail.com</a></p>        
           </address>
