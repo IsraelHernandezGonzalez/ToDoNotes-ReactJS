@@ -22,10 +22,10 @@
 }
 
 .app-footer {
-  border-top: solid 1px;  
-  width: 100%;
-  position: fixed;
+  border-top: solid 1px;    
+  position: relative;
   bottom: 0;
   left: 0;
+  right: 0;
   text-align: center;
 }

@@ -1,7 +1,10 @@
 import './styles/App.css';
 import UserSection from './UserSection';
+import TodoListSection from './ToDoListSection';
 import React from 'react';
 import NewNoteDialog from './dialogs/NewNoteDialog';
+import Button from '@mui/material/Button';
+import Icon from '@mui/material/Icon';
 
 class App extends React.Component {
 
@@ -49,18 +52,18 @@ class App extends React.Component {
     this.setState({showNewNoteDialog: false});
   }
 
-
   render() {
     
-    let noteSection = null;
+    let bodySection = null;
         
     if (this.state.user.isLogged) {
-      noteSection = (
-          <div className="app-body">
-            <button onClick={this.addNoteClickHandler}>
-              Add note
-            </button>
-            <NewNoteDialog show={this.state.showNewNoteDialog} onDialogClosingEvent={this.newNoteDialogClosingEventHandler} />
+      bodySection = (
+          <div className="app-body">            
+            <Button onClick={this.addNoteClickHandler}>
+              <Icon>add_circle</Icon>Add note
+            </Button>
+            <NewNoteDialog show={this.state.showNewNoteDialog} user={this.state.user.name} onDialogClosingEvent={this.newNoteDialogClosingEventHandler} />            
+            <TodoListSection user={this.state.user.name} />
           </div>  
         );
     }
@@ -74,7 +77,7 @@ class App extends React.Component {
               user={this.state.user}
               onLoginStateChanged={this.loginStateChangedHandler} />                        
         </header>
-        {noteSection}    
+        {bodySection}       
         <footer className="app-footer">
           <address>
             <p>Author: Israel Hernández González - <a href="mailto:israel.hernandez@gmail.com">israel.hernandez@gmail.com</a></p>        

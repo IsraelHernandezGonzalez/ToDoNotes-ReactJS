@@ -1,21 +1,48 @@
 import React from "react";
 import LoginDialog from "./dialogs/LoginDialog";
 import './styles/UserSection.css'
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
+
+
+function BoxingButton (props) {
+    return (
+        <Box sx={{     
+            marginTop: '5px',
+            marginRight: '5px',
+            position: 'fixed',
+            display: 'flex',
+            flexDirection: 'row',
+            justifyContent: 'flex-end',                
+            width: '100%'
+        }}>                
+            {props.content}
+        </Box>
+    );
+}
+
 
 class UserSection extends React.Component {
 
     constructor (props) {
         super(props);
         this.state = {
-            loginDialogHidden: true
+            loginDialogHidden: true,
+            openMenu: false,
+            anchorEl: null
         }
 
-        this.clickHandler = this.clickHandler.bind(this);
+        this.loginClickHandler = this.loginClickHandler.bind(this);
         this.loginChangedHandler = this.loginChangedHandler.bind(this);
+        
+        this.menuOpenClickHandler = this.menuOpenClickHandler.bind(this);
+        this.menuCloseClickHandler = this.menuCloseClickHandler.bind(this);
         this.logoutClickHandler = this.logoutClickHandler.bind(this);
     }
 
-    clickHandler () {
+    loginClickHandler () {
         this.setState({
             loginDialogHidden: false
         });        
@@ -24,10 +51,12 @@ class UserSection extends React.Component {
     loginChangedHandler (event) {
 
         this.setState({
-            loginDialogHidden: true
+            loginDialogHidden: true,
+            openMenu: false,
+            anchorEl: null
         });   
 
-        // Let know the top the user has been logged.
+        // Let the top know the user is logged.
         this.props.onLoginStateChanged({
             isLogingOk: event.isLoginOk,
             login: event.login
@@ -45,38 +74,61 @@ class UserSection extends React.Component {
         });
     }
 
+    menuOpenClickHandler (event) {
+        this.setState({
+            anchorEl: event.currentTarget,
+            openMenu: true
+        });
+    };
+    
+    menuCloseClickHandler () {
+        this.setState({
+            anchorEl: null,
+            openMenu: false
+        });
+    };
+    
     render() {        
         
         if (this.props.user.isLogged) {
             return (
-                <div className="user-section-container">
-                    <span>Hi, {this.props.user.name}!</span>
-                    <button onClick={this.logoutClickHandler}>Logout</button>
-                </div>
+                <BoxingButton content={
+                    <div>
+                        <Button
+                                id="basic-button"
+                                variant="contained"
+                                aria-controls={this.state.openMenu ? 'basic-menu' : undefined}
+                                aria-haspopup="true"
+                                aria-expanded={this.state.openMenu ? 'true' : undefined}
+                                onClick={this.menuOpenClickHandler}
+                        >                                
+                                Hi, {this.props.user.name}!
+                        </Button>
+                        <Menu
+                            id="basic-menu"
+                            anchorEl={this.state.anchorEl}
+                            open={this.state.openMenu}
+                            onClose={this.menuCloseClickHandler}
+                            MenuListProps={{'aria-labelledby': 'basic-button',}}
+                        >
+                            <MenuItem onClick={this.logoutClickHandler}>Logout</MenuItem>
+                        </Menu>
+                    </div>
+                } />
             );
         }
 
         if (!this.state.loginDialogHidden) {
             return (
-                <div className="user-section-container">
-                     <LoginDialog onLoginChanged={this.loginChangedHandler}/>        
-                </div>
+                <LoginDialog onLoginChanged={this.loginChangedHandler}/>                        
             );            
         }
 
-        return (
-            <div className="user-section-container">        
-                <button onClick={this.clickHandler}>Login</button>
-            </div>
+        return (            
+            <BoxingButton content={
+                <Button variant="contained" onClick={this.loginClickHandler}>Login</Button>
+            } />
         );
-
-
-        // return (
-        //     <div className="user-section-container">
-        //         <LoginDialog hidden={this.state.loginDialogHidden} onLoginChanged={this.loginChangedHandler}/>
-        //         <button onClick={this.clickHandler}>Login</button>
-        //     </div>
-        // );
     }
 
 }
