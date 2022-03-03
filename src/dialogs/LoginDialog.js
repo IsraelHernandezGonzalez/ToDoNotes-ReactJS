@@ -13,7 +13,7 @@ import IconButton from '@mui/material/IconButton';
 import Collapse from '@mui/material/Collapse';
 import CloseIcon from '@mui/icons-material/Close';
 
-import LoginService from "../services/LoginService";
+import AutheticationService from "../services/AuthenticationService";
 
 class LoginDialog extends React.Component {
  
@@ -57,41 +57,6 @@ class LoginDialog extends React.Component {
 
             if (loginCheck.isValid === true && passwordCheck.isValid === true) {
 
-                let callBackFunc = function (isLogingOk, error) {
-
-                    if (typeof(error) !== 'undefined' || error != null) {
-                        this.setState({
-                            openAlert: true,
-                            alertError: error
-                        });
-                        return;
-                    }
-
-                    if (isLogingOk === true) {
-
-                        this.setState({
-                            validation: {
-                                isLoginValid: true,                        
-                                isPasswordValid: true
-                            }
-                        });
-                    
-                        this.props.onLoginChanged({
-                                isLoginOk: true,
-                                login: this.state.login,
-                                open: false
-                        });
-                    } else  {
-                        this.setState({
-                            openAlert: true,
-                            alertError: "The login or password is incorrect."
-                        });
-                    }
-
-                }
-
-                callBackFunc = callBackFunc.bind(this);
-
                 this.setState({
                     openAlert: false,
                     validation: {
@@ -102,8 +67,41 @@ class LoginDialog extends React.Component {
                     }
                 });
 
+                let self = this;
+
                 // TODO : Maybe, do some request to check the login.
-                LoginService.login(this.state.login, this.state.password, callBackFunc);                 
+                AutheticationService.login(this.state.login, this.state.password)
+                    .then(function(response) {
+
+                        if (response.data === true) {
+
+                            self.setState({
+                                validation: {
+                                    isLoginValid: true,                        
+                                    isPasswordValid: true
+                                }
+                            });
+                        
+                            self.props.onLoginChanged({
+                                    isLoginOk: true,
+                                    login: self.state.login,
+                                    open: false
+                            });
+                        } else  {
+                            self.setState({
+                                openAlert: true,
+                                alertError: "The login or password is incorrect."
+                            });
+                        }
+
+                    })
+                    .catch(function(error) {
+                        self.setState({
+                            openAlert: true,
+                            alertError: error.message
+                        });
+                        return;
+                    });
 
             } else {
 

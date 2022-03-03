@@ -10,7 +10,9 @@ import DialogTitle from '@mui/material/DialogTitle';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
-import TodoService from "../services/TodoService";
+import TodoService from '../services/TodoService';
+
+import { PRIORITIES } from '../Global';
 
 class NewNoteDialog extends React.Component {
  
@@ -18,10 +20,9 @@ class NewNoteDialog extends React.Component {
         super(props);
 
         this.state = {
-            openDialog: this.props.show,
-            priority: 1,
-            group: '',
-            note: ''
+            priority: this.props.data.priority,
+            group: this.props.data.group,
+            note: this.props.data.note
         }
 
         this.saveClickHandler = this.saveClickHandler.bind(this);   
@@ -34,27 +35,42 @@ class NewNoteDialog extends React.Component {
 
     saveClickHandler () {        
 
-        let seft = this;
+        let self = this;
 
-        TodoService.addToDo(this.props.user, {
-                priority: this.state.priority,
-                group: this.state.group,
-                note: this.state.note
+        if (this.props.data.id === -1) {
+
+            TodoService.addToDo(self.props.user, {
+                    priority: self.state.priority,
+                    group: self.state.group,
+                    note: self.state.note
+                })
+                .then(function(response)  {
+                    self.props.onDialogClosingEvent({wasSaved: response.data});
+                })
+                .catch(function(error) {                
+                    console.log(error.message);
+                });    
+
+        } else {
+
+            TodoService.updateToDo(self.props.user, {
+                id: self.props.data.id,
+                priority: self.state.priority,
+                group: self.state.group,
+                note: self.state.note
             })
             .then(function(response)  {
-                seft.props.onDialogClosingEvent({wasSaved: response.data});
+                self.props.onDialogClosingEvent({wasSaved: response.data});
             })
-            .catch(function(error) {
+            .catch(function(error) {                
                 console.log(error.message);
             });    
+
+        }
         
     }  
 
-    cancelClickHandler () {                
-        this.setState({        
-            openDialog: false
-        });
-
+    cancelClickHandler () {           
         this.props.onDialogClosingEvent({wasSaved: false});
     }
 
@@ -71,9 +87,8 @@ class NewNoteDialog extends React.Component {
     }
 
     render() {
-
         return (
-            <Dialog open={this.props.show} onClose={this.cancelClickHandler}>
+            <Dialog open={true} onClose={this.cancelClickHandler}>
               <DialogTitle>New ToDo Note</DialogTitle>
               <DialogContent>        
                 <InputLabel id="priority-select-label">Priority</InputLabel>
@@ -84,9 +99,9 @@ class NewNoteDialog extends React.Component {
                     value={this.state.priority}
                     onChange={this.priorityChangeHandler}
                 >
-                    <MenuItem value={1}>Low</MenuItem>
-                    <MenuItem value={2}>Middle</MenuItem>
-                    <MenuItem value={3}>High</MenuItem>
+                    <MenuItem value={PRIORITIES.LowId}>{PRIORITIES.Low}</MenuItem>
+                    <MenuItem value={PRIORITIES.MiddleId}>{PRIORITIES.Middle}</MenuItem>
+                    <MenuItem value={PRIORITIES.HighId}>{PRIORITIES.High}</MenuItem>
                 </Select>              
                 <TextField
                     margin="dense"
@@ -96,6 +111,7 @@ class NewNoteDialog extends React.Component {
                     fullWidth
                     variant="standard"
                     inputProps={{ maxLength: 50}}
+                    value={this.state.group}
                     onChange={this.groupChangeHandler}
                 />    
                 <TextField
@@ -107,6 +123,7 @@ class NewNoteDialog extends React.Component {
                     fullWidth   
                     maxRows={4}
                     variant="standard"
+                    value={this.state.note}
                     onChange={this.noteChangeHandler}
                 />                   
               </DialogContent>

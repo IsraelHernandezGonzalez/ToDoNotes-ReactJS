@@ -111,7 +111,7 @@ class UserSection extends React.Component {
                             onClose={this.menuCloseClickHandler}
                             MenuListProps={{'aria-labelledby': 'basic-button',}}
                         >
-                            <MenuItem onClick={this.logoutClickHandler}>Logout</MenuItem>
+                            <MenuItem  onClick={this.logoutClickHandler}>Logout</MenuItem>
                         </Menu>
                     </div>
                 } />
