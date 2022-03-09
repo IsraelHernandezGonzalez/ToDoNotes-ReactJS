@@ -87,9 +87,20 @@ class NewNoteDialog extends React.Component {
     }
 
     render() {
+
+
+        let title;
+
+        if (this.props.data.id === -1) {
+            title = 'New ToDo Note';
+        } else {
+            title = 'Edit ToDo Note';
+        }
+
+
         return (
             <Dialog open={true} onClose={this.cancelClickHandler}>
-              <DialogTitle>New ToDo Note</DialogTitle>
+              <DialogTitle>{title}</DialogTitle>
               <DialogContent>        
                 <InputLabel id="priority-select-label">Priority</InputLabel>
                 <Select

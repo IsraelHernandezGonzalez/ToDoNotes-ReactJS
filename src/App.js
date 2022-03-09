@@ -54,7 +54,7 @@ class App extends React.Component {
       <div className="app">
         <header className="app-header">               
             <img src='logo64.png' alt='Alien - React first contact logo' />   
-            <p>React first contact</p>            
+            <p>To Do List example - ReactJS first contact</p>            
             <UserSection 
               user={this.state.user}
               onLoginStateChanged={this.loginStateChangedHandler} />                        
