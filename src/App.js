@@ -52,8 +52,7 @@ class App extends React.Component {
 
     return (
       <div className="app">
-        <header className="app-header">               
-            <img src='logo64.png' alt='Alien - React first contact logo' />   
+        <header className="app-header">                           
             <p>To Do List example - ReactJS first contact</p>            
             <UserSection 
               user={this.state.user}
