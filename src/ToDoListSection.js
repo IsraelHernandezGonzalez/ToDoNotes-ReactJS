@@ -1,4 +1,6 @@
 import React from "react";
+import PropTypes from 'prop-types';
+import { useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import { styled } from '@mui/material/styles';
 import Table from '@mui/material/Table';
@@ -10,6 +12,13 @@ import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import TodoService from "./services/TodoService";
 import { Button } from "@mui/material";
+import TableFooter from '@mui/material/TableFooter';
+import TablePagination from '@mui/material/TablePagination';
+import IconButton from '@mui/material/IconButton';
+import FirstPageIcon from '@mui/icons-material/FirstPage';
+import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
+import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
+import LastPageIcon from '@mui/icons-material/LastPage';
 
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
@@ -22,6 +31,67 @@ import NewNoteDialog from './dialogs/NewNoteDialog';
 import Icon from '@mui/material/Icon';
 
 import Global from './Global';
+
+function TablePaginationActions(props) {
+    const theme = useTheme();
+    const { count, page, rowsPerPage, onPageChange } = props;
+  
+    const handleFirstPageButtonClick = (event) => {
+      onPageChange(event, 0);
+    };
+  
+    const handleBackButtonClick = (event) => {
+      onPageChange(event, page - 1);
+    };
+  
+    const handleNextButtonClick = (event) => {
+      onPageChange(event, page + 1);
+    };
+  
+    const handleLastPageButtonClick = (event) => {
+      onPageChange(event, Math.max(0, Math.ceil(count / rowsPerPage) - 1));
+    };
+  
+    return (
+      <Box sx={{ flexShrink: 0, ml: 2.5 }}>
+        <IconButton
+          onClick={handleFirstPageButtonClick}
+          disabled={page === 0}
+          aria-label="first page"
+        >
+          {theme.direction === 'rtl' ? <LastPageIcon /> : <FirstPageIcon />}
+        </IconButton>
+        <IconButton
+          onClick={handleBackButtonClick}
+          disabled={page === 0}
+          aria-label="previous page"
+        >
+          {theme.direction === 'rtl' ? <KeyboardArrowRight /> : <KeyboardArrowLeft />}
+        </IconButton>
+        <IconButton
+          onClick={handleNextButtonClick}
+          disabled={page >= Math.ceil(count / rowsPerPage) - 1}
+          aria-label="next page"
+        >
+          {theme.direction === 'rtl' ? <KeyboardArrowLeft /> : <KeyboardArrowRight />}
+        </IconButton>
+        <IconButton
+          onClick={handleLastPageButtonClick}
+          disabled={page >= Math.ceil(count / rowsPerPage) - 1}
+          aria-label="last page"
+        >
+          {theme.direction === 'rtl' ? <FirstPageIcon /> : <LastPageIcon />}
+        </IconButton>
+      </Box>
+    );
+  }
+
+TablePaginationActions.propTypes = {
+    count: PropTypes.number.isRequired,
+    onPageChange: PropTypes.func.isRequired,
+    page: PropTypes.number.isRequired,
+    rowsPerPage: PropTypes.number.isRequired,
+};
 
 class ToDoListSection extends React.Component {
 
@@ -37,11 +107,15 @@ class ToDoListSection extends React.Component {
                 priority: 1,
                 group: '',
                 note: ''
-            }
+            },
+            page: 0,
+            rowsPerPage: 5
         }
 
         this.addNoteClickHandler = this.addNoteClickHandler.bind(this);
         this.newNoteDialogClosingEventHandler = this.newNoteDialogClosingEventHandler.bind(this);
+        this.changePageHandler = this.changePageHandler.bind(this);
+        this.changeRowsPerPageHandler = this.changeRowsPerPageHandler.bind(this);
     }
 
     componentDidMount () {
@@ -152,10 +226,23 @@ class ToDoListSection extends React.Component {
 
         }        
 
-    }
+    }     
 
+    changePageHandler (event, newPage)  {
+        this.setState({page: newPage})
+    };
+
+    changeRowsPerPageHandler (event) {        
+        this.setState({
+            page: 0,
+            rowsPerPage: parseInt(event.target.value, 10)
+        });
+    };
 
     render () {
+
+        const  emptyRows =
+            this.state.page > 0 ? Math.max(0, (1 + this.state.page) * this.state.rowsPerPage - this.state.rows.length) : 0;
 
         const StyledTableCell = styled(TableCell)(({ theme }) => ({
             [`&.${tableCellClasses.head}`]: {
@@ -205,7 +292,10 @@ class ToDoListSection extends React.Component {
                         </TableRow>
                         </TableHead>
                         <TableBody>
-                        {this.state.rows.map((row) => (
+                        {(this.state.rowsPerPage > 0
+                                ? this.state.rows.slice(this.state.page * this.state.rowsPerPage, this.state.page * this.state.rowsPerPage + this.state.rowsPerPage)
+                                : this.state.rows
+                            ).map((row) => (
                             <StyledTableRow
                             key={row.id}
                             sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
@@ -221,7 +311,32 @@ class ToDoListSection extends React.Component {
                                 </StyledTableCell>
                             </StyledTableRow>
                         ))}
+                         {emptyRows > 0 && (
+                            <TableRow style={{ height: 53 * emptyRows }}>
+                            <TableCell colSpan={6} />
+                            </TableRow>
+                        )}
                         </TableBody>
+                        <TableFooter>
+                            <TableRow>
+                                <TablePagination
+                                rowsPerPageOptions={[5, 10, 25, { label: 'All', value: -1 }]}
+                                colSpan={3}
+                                count={this.state.rows.length}
+                                rowsPerPage={this.state.rowsPerPage}
+                                page={this.state.page}
+                                SelectProps={{
+                                    inputProps: {
+                                    'aria-label': 'rows per page',
+                                    },
+                                    native: true,
+                                }}
+                                onPageChange={this.changePageHandler}
+                                onRowsPerPageChange={this.changeRowsPerPageHandler}
+                                ActionsComponent={TablePaginationActions}
+                                />
+                            </TableRow>
+                            </TableFooter>
                     </Table>
                 </TableContainer>
                 <Dialog
