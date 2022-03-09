@@ -27,9 +27,7 @@ class TodoService {
             group: 'group2',
             note: 'ToDoNote 4'
         }
-    ];
-
-    
+    ];        
 
     static getToDoByUser (user) {
 

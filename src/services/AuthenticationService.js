@@ -17,8 +17,7 @@ class AuthenticationService {
 
             });
 
-        } else {
-                   
+        } else {                   
             
             return axios.post("http://localhost:8080/Authentication/Login", {
                     user: user,

@@ -1,6 +1,5 @@
 import React from "react";
 import LoginDialog from "./dialogs/LoginDialog";
-import './styles/UserSection.css'
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Menu from '@mui/material/Menu';
@@ -12,7 +11,7 @@ function BoxingButton (props) {
         <Box sx={{     
             marginTop: '5px',
             marginRight: '5px',
-            position: 'fixed',
+            position: 'absolute',
             display: 'flex',
             flexDirection: 'row',
             justifyContent: 'flex-end',                
