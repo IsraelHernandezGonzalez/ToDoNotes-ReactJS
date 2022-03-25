@@ -29,7 +29,15 @@ class TodoService {
         }
     ];        
 
-    static getToDoByUser (user) {
+    static getHeaderConfig(token) {
+        const config = {
+            headers: {'Authorization' : `Bearer ${token}` }
+        };     
+
+        return config;
+    }
+
+    static getToDoByUser (token) {
 
         if (process.env.REACT_APP_SERVICES_WITHOUT_BACKEND === 'true') {
 
@@ -40,14 +48,17 @@ class TodoService {
             });
 
         } else {
+            
+            const config = this.getHeaderConfig(token);
 
-            return axios.get(`http://localhost:8080/ToDo/${user}`);
+            return axios.get('http://localhost:8080/ToDo',
+                config);
 
         }
 
     }
 
-    static addToDo(user, newToDoNote) {        
+    static addToDo(token, newToDoNote) {        
 
         if (process.env.REACT_APP_SERVICES_WITHOUT_BACKEND === 'true') {
             
@@ -60,16 +71,23 @@ class TodoService {
 
         } else {
 
-            return axios.post(`http://localhost:8080/ToDo/${user}`, {  
+            const data = {  
                 priority: newToDoNote.priority,
                 group: newToDoNote.group,
                 note: newToDoNote.note
-            });        
+            };
+
+            const config = this.getHeaderConfig(token);
+
+            return axios.post('http://localhost:8080/ToDo', 
+                data,
+                config);        
+            
         }
 
     }
 
-    static updateToDo(user, toDoNote) {        
+    static updateToDo(token, toDoNote) {        
 
         if (process.env.REACT_APP_SERVICES_WITHOUT_BACKEND === 'true') {
             
@@ -94,17 +112,23 @@ class TodoService {
 
         } else {
 
-            return axios.put(`http://localhost:8080/ToDo/${user}`, {  
+            const data = {  
                 id: toDoNote.id,
                 priority: toDoNote.priority,
                 group: toDoNote.group,
                 note: toDoNote.note
-            });        
+            };
+            
+            const config = this.getHeaderConfig(token);
+
+            return axios.put('http://localhost:8080/ToDo',
+                data,
+                config);        
         }
 
     }
 
-    static deleteToDo(user, id) {
+    static deleteToDo(token, id) {
 
         if (process.env.REACT_APP_SERVICES_WITHOUT_BACKEND === 'true') {
             
@@ -133,7 +157,10 @@ class TodoService {
 
         } else {
 
-            return axios.delete(`http://localhost:8080/ToDo/${user}/${id}`);        
+            const config = this.getHeaderConfig(token);
+
+            return axios.delete(`http://localhost:8080/ToDo/${id}`,
+                config);        
         }
 
     }

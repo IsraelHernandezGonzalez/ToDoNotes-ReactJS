@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import PropTypes from 'prop-types';
 import { useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
@@ -25,12 +25,12 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
-// import useMediaQuery from '@mui/material/useMediaQuery';
 
 import NewNoteDialog from './dialogs/NewNoteDialog';
 import Icon from '@mui/material/Icon';
 
 import Global from './Global';
+import { UserAuthenticationContext } from "./contexts/user/userAuthenticationProvider";
 
 function TablePaginationActions(props) {
     const theme = useTheme();
@@ -93,6 +93,14 @@ TablePaginationActions.propTypes = {
     rowsPerPage: PropTypes.number.isRequired,
 };
 
+
+const Observer = ({ value, didUpdate }) => {
+    useEffect(() => {
+        didUpdate(value);
+    }, [value, didUpdate]);
+    return null; // component does not render anything
+};
+
 class ToDoListSection extends React.Component {
 
     constructor (props) {
@@ -116,15 +124,24 @@ class ToDoListSection extends React.Component {
         this.newNoteDialogClosingEventHandler = this.newNoteDialogClosingEventHandler.bind(this);
         this.changePageHandler = this.changePageHandler.bind(this);
         this.changeRowsPerPageHandler = this.changeRowsPerPageHandler.bind(this);
-    }
 
-    componentDidMount () {
+        this.updateList = this.updateList.bind(this);
+    }    
 
-        let seft = this;
+    updateList () {
 
-        TodoService.getToDoByUser(this.props.user)
+        const isAuthenticated = this.context[0].isAuthenticated;
+
+        if (isAuthenticated === false) {
+            return;
+        }
+
+        let self = this;
+        let token = this.context[0].token;
+
+        TodoService.getToDoByUser(token)
             .then(function(response) {
-                seft.setState({
+                self.setState({
                     rows: response.data
                 });
             })
@@ -133,7 +150,6 @@ class ToDoListSection extends React.Component {
             });
 
     }
-
     
     addNoteClickHandler () {
         this.setState({
@@ -152,8 +168,9 @@ class ToDoListSection extends React.Component {
         if (result.wasSaved === true) {
 
             let self = this;
+            let token = this.context[0].token;
 
-            TodoService.getToDoByUser(self.props.user)
+            TodoService.getToDoByUser(token)
                 .then(function(response) {
                     self.setState({
                         rows: response.data           
@@ -187,7 +204,7 @@ class ToDoListSection extends React.Component {
         this.setState({
             showConfirmDeleteDialog: true,
             idToDelete: data.id
-        })
+        });
 
     }    
 
@@ -203,17 +220,24 @@ class ToDoListSection extends React.Component {
         } else {
             
             let self = this;
+            let token = this.context[0].token;
 
-            TodoService.deleteToDo(this.props.user, id)
+            TodoService.deleteToDo(token, id)
                 .then(function(response) {
             
-                    TodoService.getToDoByUser(self.props.user)
+                    TodoService.getToDoByUser(token)
                         .then(function(response) {
                             self.setState({
                                 rows: response.data,
                                 showConfirmDeleteDialog: false,
                                 idToDelete: -1
-                            });
+                            });                            
+
+                            // Correct the page if necessary.
+                            if (Math.ceil(self.state.rows.length/self.state.rowsPerPage) - 1 < self.state.page) {
+                                self.changePageHandler(null, self.state.page - 1);
+                            }
+
                         })
                         .catch(function(error) {
                             console.log(error.message);
@@ -240,6 +264,8 @@ class ToDoListSection extends React.Component {
     };
 
     render () {
+
+        const showTable = this.context[0].isAuthenticated;
 
         const  emptyRows =
             this.state.page > 0 ? Math.max(0, (1 + this.state.page) * this.state.rowsPerPage - this.state.rows.length) : 0;
@@ -269,14 +295,15 @@ class ToDoListSection extends React.Component {
         if (this.state.showNewNoteDialog === true) {
             newNoteDialog = (
                 <NewNoteDialog 
-                    user={this.props.user} 
+                    user={this.context[0].userName} 
                     data={this.state.newEditNoteData}
                     onDialogClosingEvent={this.newNoteDialogClosingEventHandler}
                 />);
         }
 
         return (
-            <Box sx={{ width: '90%', marginRight: '5%', marginLeft: '5%', paddingBottom: '10px'}}>
+            <Box sx={{ width: '90%', marginRight: '5%', marginLeft: '5%', paddingBottom: '10px', visibility: showTable?'visible':'hidden'}}>
+                <Observer value={this.context[0].isAuthenticated} didUpdate={this.updateList} />
                 <Button onClick={this.addNoteClickHandler}>
                     <Icon>add_circle</Icon>Add note
                 </Button>                
@@ -340,7 +367,6 @@ class ToDoListSection extends React.Component {
                     </Table>
                 </TableContainer>
                 <Dialog
-                    // fullScreen={fullScreen}
                     open={this.state.showConfirmDeleteDialog}
                     onClose={this.closeConfirmDeleteDialogHandler.bind(this, false)}
                     aria-labelledby="responsive-dialog-title"
@@ -367,5 +393,7 @@ class ToDoListSection extends React.Component {
     }
 
 }
+
+ToDoListSection.contextType = UserAuthenticationContext;
 
 export default ToDoListSection;

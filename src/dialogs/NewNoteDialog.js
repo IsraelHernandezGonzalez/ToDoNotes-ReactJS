@@ -11,10 +11,13 @@ import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
 import TodoService from '../services/TodoService';
+import { UserAuthenticationContext } from "../contexts/user/userAuthenticationProvider";
 
 import { PRIORITIES } from '../Global';
 
 class NewNoteDialog extends React.Component {
+
+    static contextType = UserAuthenticationContext;
  
     constructor(props) {
         super(props);
@@ -36,10 +39,11 @@ class NewNoteDialog extends React.Component {
     saveClickHandler () {        
 
         let self = this;
+        let token = this.context[0].token;
 
         if (this.props.data.id === -1) {
 
-            TodoService.addToDo(self.props.user, {
+            TodoService.addToDo(token, {
                     priority: self.state.priority,
                     group: self.state.group,
                     note: self.state.note
@@ -53,7 +57,7 @@ class NewNoteDialog extends React.Component {
 
         } else {
 
-            TodoService.updateToDo(self.props.user, {
+            TodoService.updateToDo(token, {
                 id: self.props.data.id,
                 priority: self.state.priority,
                 group: self.state.group,
@@ -87,7 +91,6 @@ class NewNoteDialog extends React.Component {
     }
 
     render() {
-
 
         let title;
 

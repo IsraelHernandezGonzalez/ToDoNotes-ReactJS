@@ -4,7 +4,7 @@ import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
-
+import { UserAuthenticationContext } from "./contexts/user/userAuthenticationProvider";
 
 function BoxingButton (props) {
     return (
@@ -26,50 +26,46 @@ function BoxingButton (props) {
 class UserSection extends React.Component {
 
     constructor (props) {
+
         super(props);
-        this.state = {
-            loginDialogHidden: true,
+
+        this.state = {            
+            openLoginDialog: false,
             openMenu: false,
             anchorEl: null
         }
 
         this.loginClickHandler = this.loginClickHandler.bind(this);
-        this.loginChangedHandler = this.loginChangedHandler.bind(this);
+        this.logoutClickHandler = this.logoutClickHandler.bind(this);
+
+        this.closeLoginDialogHandler = this.closeLoginDialogHandler.bind(this);
         
         this.menuOpenClickHandler = this.menuOpenClickHandler.bind(this);
-        this.menuCloseClickHandler = this.menuCloseClickHandler.bind(this);
-        this.logoutClickHandler = this.logoutClickHandler.bind(this);
+        this.menuCloseClickHandler = this.menuCloseClickHandler.bind(this);        
     }
 
     loginClickHandler () {
         this.setState({
-            loginDialogHidden: false
+            openLoginDialog: true
         });        
     }
-    
-    loginChangedHandler (event) {
 
+    closeLoginDialogHandler () {
         this.setState({
-            loginDialogHidden: true,
-            openMenu: false,
-            anchorEl: null
-        });   
-
-        // Let the top know the user is logged.
-        this.props.onLoginStateChanged({
-            isLogingOk: event.isLoginOk,
-            login: event.login
+            openLoginDialog: false
         });
-    }
+    }  
 
-    logoutClickHandler () {
-        
-        this.setState({
-            loginDialogHidden: true
-        });   
+    logoutClickHandler () {                
+    
+        const dispatchAuthentication = this.context[1];
 
-        this.props.onLoginStateChanged({
-            isLogingOk: false
+        dispatchAuthentication({type: 'reset'});
+
+        this.setState({ 
+            openLoginDialog: false,
+            anchorEl: null,
+            openMenu: false
         });
     }
 
@@ -87,9 +83,11 @@ class UserSection extends React.Component {
         });
     };
     
-    render() {        
-        
-        if (this.props.user.isLogged) {
+    render() {               
+
+        const stateAuthentication = this.context[0];
+
+        if (stateAuthentication.isAuthenticated) {
             return (
                 <BoxingButton content={
                     <div>
@@ -101,7 +99,7 @@ class UserSection extends React.Component {
                                 aria-expanded={this.state.openMenu ? 'true' : undefined}
                                 onClick={this.menuOpenClickHandler}
                         >                                
-                                Hi, {this.props.user.name}!
+                                Hi, {stateAuthentication.userName}!
                         </Button>
                         <Menu
                             id="basic-menu"
@@ -117,19 +115,22 @@ class UserSection extends React.Component {
             );
         }
 
-        if (!this.state.loginDialogHidden) {
+        if (this.state.openLoginDialog) {
             return (
-                <LoginDialog onLoginChanged={this.loginChangedHandler}/>                        
+                <LoginDialog closeHandler={this.closeLoginDialogHandler}/>
             );            
         }
 
-        return (            
+        return ( 
             <BoxingButton content={
-                <Button variant="contained" onClick={this.loginClickHandler}>Login</Button>
-            } />
+                    <Button variant="contained" onClick={this.loginClickHandler}>Login</Button>
+                }
+            />
         );
     }
 
 }
+
+UserSection.contextType = UserAuthenticationContext;
 
 export default UserSection;
